@@ -2,7 +2,6 @@ package com.financialtargets.incomes.domain.utils;
 
 import com.financialtargets.incomes.domain.constants.DateConstants;
 import com.financialtargets.incomes.domain.exception.BadRequestException;
-import lombok.experimental.UtilityClass;
 
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -10,31 +9,30 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@UtilityClass
 public class DateUtil {
-    public Instant createDateTime(String isoDate) {
+    public static Instant createDateTime(String isoDate) {
         LocalDateTime ldt = LocalDateTime.parse(isoDate);
 
         return ldt.atZone(DateConstants.DEFAULT_TIME_ZONE).toInstant();
     }
 
-    public Instant now() {
+    public static Instant now() {
         return Instant.now();
     }
 
-    public String formatDate(Instant date) {
+    public static String formatDate(Instant date) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DateConstants.DEFAULT_DATE_FORMAT).withZone(DateConstants.DEFAULT_TIME_ZONE);
 
         return fmt.format(date);
     }
 
-    public String formatDateTime(Instant date) {
+    public static String formatDateTime(Instant date) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DateConstants.DEFAULT_DATE_TIME_FORMAT).withZone(DateConstants.DEFAULT_TIME_ZONE);
 
         return fmt.format(date);
     }
 
-    public Instant getStartDateByFilter(String month, String year) throws Exception {
+    public static Instant getStartDateByFilter(String month, String year) throws Exception {
         try {
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DateConstants.DEFAULT_DATE_FORMAT).withZone(DateConstants.DEFAULT_TIME_ZONE);
 
@@ -50,7 +48,7 @@ public class DateUtil {
         }
     }
 
-    public Instant getEndDateByFilter(String month, String year) throws Exception {
+    public static Instant getEndDateByFilter(String month, String year) throws Exception {
         try {
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DateConstants.DEFAULT_DATE_FORMAT).withZone(DateConstants.DEFAULT_TIME_ZONE);
 

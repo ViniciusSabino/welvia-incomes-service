@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CreateIncomeUseCase {
     private final IncomeTypeValidator incomeTypeValidator;
-
     private final IncomesDomainService service;
-
     private final IncomesMapper mapper;
 
     public IncomeResponseDTO create(IncomeCreateDTO incomeCreateDTO) throws IncomeException {

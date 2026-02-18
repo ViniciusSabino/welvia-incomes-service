@@ -15,7 +15,6 @@ import java.util.List;
 @Slf4j
 public class ListingIncomeUseCase {
     private final IncomesDomainService service;
-
     private final IncomesMapper mapper;
 
     public List<IncomeResponseDTO> byPeriod(String month, String year) throws Exception {

@@ -4,20 +4,10 @@ import com.financialtargets.incomes.domain.enums.IncomeStatuses;
 import com.financialtargets.incomes.domain.enums.IncomeTypes;
 import com.financialtargets.incomes.domain.model.Income;
 import com.financialtargets.incomes.infrastructure.entitiy.IncomesEntity;
-import com.financialtargets.incomes.infrastructure.repository.AccountJpaRepository;
-import com.financialtargets.incomes.infrastructure.repository.IncomeStatusesJpaRepository;
-import com.financialtargets.incomes.infrastructure.repository.IncomeTypesJpaRepository;
-import com.financialtargets.incomes.infrastructure.repository.UserJpaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class IncomeEntityMapper {
-    private final UserJpaRepository userJpaRepository;
-    private final AccountJpaRepository accountJpaRepository;
-    private final IncomeTypesJpaRepository incomeTypesJpaRepository;
-    private final IncomeStatusesJpaRepository incomeStatusesJpaRepository;
 
     public IncomesEntity toEntity(Income income) {
         IncomesEntity entity = new IncomesEntity();
@@ -27,11 +17,6 @@ public class IncomeEntityMapper {
         entity.setCreatedAt(income.getCreatedAt());
         entity.setUpdatedAt(income.getUpdatedAt());
         entity.setDescription(income.getDescription());
-
-        entity.setUser(userJpaRepository.getReferenceById(income.getUserId()));
-        entity.setAccount(accountJpaRepository.getReferenceById(income.getAccountId()));
-        entity.setIncomeType(incomeTypesJpaRepository.getReferenceById(income.getType().getId()));
-        entity.setIncomeStatus(incomeStatusesJpaRepository.getReferenceById(income.getStatus().getId()));
 
         return entity;
     }

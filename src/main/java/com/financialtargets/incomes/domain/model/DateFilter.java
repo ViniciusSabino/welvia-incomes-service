@@ -8,7 +8,6 @@ import java.time.Instant;
 @Data
 public class DateFilter {
     Instant startDate;
-
     Instant endDate;
 
     public DateFilter(String month, String year) throws Exception {

@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class SummaryDomainService {
-
     public IncomesSummary getSummaryByIncomes(List<Income> incomes) {
         List<Income> expectedIncomes = incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.PLANNED).toList();
         List<Income> effectiveIncomes = incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.EFFECTIVE).toList();

@@ -35,5 +35,4 @@ public record IncomeCreateDTO(
         @Length(max = 50)
         @JsonProperty("description")
         String description
-) {
-}
+) { }

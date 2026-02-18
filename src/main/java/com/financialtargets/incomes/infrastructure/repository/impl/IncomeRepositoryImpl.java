@@ -5,7 +5,7 @@ import com.financialtargets.incomes.domain.model.Income;
 import com.financialtargets.incomes.domain.repository.IncomeRepository;
 import com.financialtargets.incomes.infrastructure.entitiy.IncomesEntity;
 import com.financialtargets.incomes.infrastructure.mapper.IncomeEntityMapper;
-import com.financialtargets.incomes.infrastructure.repository.IncomeJpaRepository;
+import com.financialtargets.incomes.infrastructure.repository.*;
 import com.financialtargets.incomes.infrastructure.repository.specification.IncomeSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -16,16 +16,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IncomeRepositoryImpl implements IncomeRepository {
     private final IncomeJpaRepository repository;
-
+    private final UserJpaRepository userJpaRepository;
+    private final AccountJpaRepository accountJpaRepository;
+    private final IncomeTypesJpaRepository incomeTypesJpaRepository;
+    private final IncomeStatusesJpaRepository incomeStatusesJpaRepository;
     private final IncomeEntityMapper mapper;
+
 
     @Override
     public Income save(Income income) {
         IncomesEntity entity = mapper.toEntity(income);
 
-        IncomesEntity savedIncome = repository.save(entity);
+        entity.setUser(userJpaRepository.getReferenceById(income.getUserId()));
+        entity.setAccount(accountJpaRepository.getReferenceById(income.getAccountId()));
+        entity.setIncomeType(incomeTypesJpaRepository.getReferenceById(income.getType().getId()));
+        entity.setIncomeStatus(incomeStatusesJpaRepository.getReferenceById(income.getStatus().getId()));
 
-        return mapper.toModel(savedIncome);
+        IncomesEntity saved = repository.save(entity);
+
+        return mapper.toModel(saved);
     }
 
     @Override

@@ -14,16 +14,10 @@ import java.math.BigDecimal;
 @Builder
 public class IncomesSummaryResponseDTO extends RepresentationModel<IncomesSummaryResponseDTO> implements Serializable {
     @JsonProperty("totalExpected")
-    String totalExpected;
-
-    @JsonProperty("totalExpectedValue")
-    BigDecimal totalExpectedValue;
+    BigDecimal totalExpected;
 
     @JsonProperty("totalReceived")
-    String totalReceived;
-
-    @JsonProperty("totalReceivedValue")
-    BigDecimal totalReceivedValue;
+    BigDecimal totalReceived;
 
     @JsonProperty("countExpected")
     Integer countExpected;
@@ -31,4 +25,3 @@ public class IncomesSummaryResponseDTO extends RepresentationModel<IncomesSummar
     @JsonProperty("countReceived")
     Integer countReceived;
 }
-

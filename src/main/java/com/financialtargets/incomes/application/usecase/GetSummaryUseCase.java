@@ -18,7 +18,6 @@ import java.util.List;
 public class GetSummaryUseCase {
     private final IncomesDomainService incomesDomainService;
     private final SummaryDomainService summaryDomainService;
-
     private final SummaryMapper mapper;
 
     public IncomesSummaryResponseDTO byPeriod(String month, String year) throws Exception {
