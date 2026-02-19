@@ -25,6 +25,7 @@ public class IncomesMapper {
                 .updatedAt(DateUtil.now())
                 .date(incomeDate)
                 .status(DateUtil.now().isBefore(incomeDate) ? IncomeStatuses.PLANNED : IncomeStatuses.EFFECTIVE)
+                .type(IncomeTypes.getTypeById(incomeCreateDTO.type()))
                 .build();
     }
 

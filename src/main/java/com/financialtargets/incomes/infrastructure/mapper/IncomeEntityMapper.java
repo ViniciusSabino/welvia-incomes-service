@@ -25,7 +25,7 @@ public class IncomeEntityMapper {
         return Income.builder()
                 .id(entity.getId())
                 .userId(entity.getUser().getId())
-                .accountName(entity.getUser().getName())
+                .accountName(entity.getAccount().getName())
                 .amount(entity.getAmount())
                 .date(entity.getDate())
                 .description(entity.getDescription())
