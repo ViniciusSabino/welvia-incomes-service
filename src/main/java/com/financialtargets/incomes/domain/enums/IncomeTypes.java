@@ -8,9 +8,9 @@ import java.util.Optional;
 
 @Getter
 public enum IncomeTypes {
-    FIXED_INCOME(1L, IncomeBehavior.RECURRING, "Fixed Income", "Salário"),
+    FIXED(1L, IncomeBehavior.RECURRING, "Fixed Income", "Salário"),
     FREELANCE(2L, IncomeBehavior.VARIABLE, "Freelance", "Variável"),
-    BUSINESS_INCOME(3L, IncomeBehavior.VARIABLE, "Business Income", "Empresarial"),
+    BUSINESS(3L, IncomeBehavior.VARIABLE, "Business Income", "Empresarial"),
     INVESTMENTS(4L, IncomeBehavior.RECURRING, "Investments", "Investimentos"),
     BONUS(5L, IncomeBehavior.ONE_TIME, "Bonus", "Bônus"),
     OTHER_INCOMES(6L, IncomeBehavior.VARIABLE, "Other", "Outros");

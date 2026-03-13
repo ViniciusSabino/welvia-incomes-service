@@ -13,12 +13,12 @@ import java.time.Instant;
 public class Income {
     private Long id;
     private Long userId;
-    private Long accountId;
-    private String accountName;
+    private Account account;
     private IncomeTypes type;
     private IncomeStatuses status;
     private BigDecimal amount;
     private Instant date;
+    private Instant receivedAt;
     private String description;
     private Instant createdAt;
     private Instant updatedAt;

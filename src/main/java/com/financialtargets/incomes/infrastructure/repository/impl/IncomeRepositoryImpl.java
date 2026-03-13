@@ -28,7 +28,7 @@ public class IncomeRepositoryImpl implements IncomeRepository {
         IncomesEntity entity = mapper.toEntity(income);
 
         entity.setUser(userJpaRepository.getReferenceById(income.getUserId()));
-        entity.setAccount(accountJpaRepository.getReferenceById(income.getAccountId()));
+        entity.setAccount(accountJpaRepository.getReferenceById(income.getAccount().getId()));
         entity.setIncomeType(incomeTypesJpaRepository.getReferenceById(income.getType().getId()));
         entity.setIncomeStatus(incomeStatusesJpaRepository.getReferenceById(income.getStatus().getId()));
 

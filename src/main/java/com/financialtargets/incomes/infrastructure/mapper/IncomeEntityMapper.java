@@ -2,6 +2,7 @@ package com.financialtargets.incomes.infrastructure.mapper;
 
 import com.financialtargets.incomes.domain.enums.IncomeStatuses;
 import com.financialtargets.incomes.domain.enums.IncomeTypes;
+import com.financialtargets.incomes.domain.model.Account;
 import com.financialtargets.incomes.domain.model.Income;
 import com.financialtargets.incomes.infrastructure.entitiy.IncomesEntity;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ public class IncomeEntityMapper {
 
         entity.setAmount(income.getAmount());
         entity.setDate(income.getDate());
+        entity.setReceivedAt(income.getReceivedAt());
         entity.setCreatedAt(income.getCreatedAt());
         entity.setUpdatedAt(income.getUpdatedAt());
         entity.setDescription(income.getDescription());
@@ -25,9 +27,13 @@ public class IncomeEntityMapper {
         return Income.builder()
                 .id(entity.getId())
                 .userId(entity.getUser().getId())
-                .accountName(entity.getAccount().getName())
+                .account(Account.builder()
+                        .id(entity.getAccount().getId())
+                        .name(entity.getAccount().getName())
+                        .build())
                 .amount(entity.getAmount())
                 .date(entity.getDate())
+                .receivedAt(entity.getReceivedAt())
                 .description(entity.getDescription())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

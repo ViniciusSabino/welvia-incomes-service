@@ -8,30 +8,18 @@ import java.util.Optional;
 
 @Getter
 public enum IncomeStatuses {
-    PLANNED(1L, "Planejado"),
-    EFFECTIVE(2L, "Efetivado");
+    EXPECTED(1L),
+    RECEIVED(2L);
 
     private final Long id;
-    private final String label;
 
-    IncomeStatuses(Long id, String label) {
+    IncomeStatuses(Long id) {
         this.id = id;
-        this.label = label;
     }
 
     public static IncomeStatuses getStatusById(Long id) {
         Optional<IncomeStatuses> filtered = Arrays.stream(IncomeStatuses.values()).filter(i -> Objects.equals(i.getId(), id)).findFirst();
 
-        return filtered.orElse(IncomeStatuses.EFFECTIVE);
-    }
-
-    public static String getLabelById(Long id) {
-        Optional<IncomeStatuses> filtered = Arrays.stream(IncomeStatuses.values()).filter(i -> Objects.equals(i.getId(), id)).findFirst();
-
-        if (filtered.isPresent()) {
-            return filtered.get().getLabel();
-        }
-
-        return IncomeStatuses.EFFECTIVE.getLabel();
+        return filtered.orElse(IncomeStatuses.RECEIVED);
     }
 }

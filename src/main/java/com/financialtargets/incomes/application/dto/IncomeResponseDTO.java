@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Builder
@@ -27,11 +28,17 @@ public class IncomeResponseDTO extends RepresentationModel<IncomeResponseDTO> im
         @JsonProperty("status")
         private String status;
 
+        @JsonProperty("recurrence")
+        private String recurrence;
+
         @JsonProperty("amount")
-        private String amount;
+        private BigDecimal amount;
 
         @JsonProperty("date")
         private String date;
+
+        @JsonProperty("receivedAt")
+        private String receivedAt;
 
         @JsonProperty("description")
         private String description;

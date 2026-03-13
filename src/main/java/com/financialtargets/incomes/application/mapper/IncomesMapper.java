@@ -1,7 +1,7 @@
 package com.financialtargets.incomes.application.mapper;
 
 import com.financialtargets.incomes.application.dto.IncomeCreateDTO;
-import com.financialtargets.incomes.domain.utils.AmountUtil;
+import com.financialtargets.incomes.domain.model.Account;
 import com.financialtargets.incomes.domain.utils.DateUtil;
 import com.financialtargets.incomes.domain.enums.IncomeStatuses;
 import com.financialtargets.incomes.domain.enums.IncomeTypes;
@@ -10,6 +10,7 @@ import com.financialtargets.incomes.domain.model.Income;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Component
 public class IncomesMapper {
@@ -18,13 +19,12 @@ public class IncomesMapper {
 
         return Income.builder()
                 .userId(incomeCreateDTO.userId())
-                .accountId(incomeCreateDTO.accountId())
+                .account(Account.builder()
+                        .id(incomeCreateDTO.accountId())
+                        .build())
                 .amount(incomeCreateDTO.amount())
                 .description(incomeCreateDTO.description())
-                .createdAt(DateUtil.now())
-                .updatedAt(DateUtil.now())
                 .date(incomeDate)
-                .status(DateUtil.now().isBefore(incomeDate) ? IncomeStatuses.PLANNED : IncomeStatuses.EFFECTIVE)
                 .type(IncomeTypes.getTypeById(incomeCreateDTO.type()))
                 .build();
     }
@@ -33,11 +33,13 @@ public class IncomesMapper {
         return IncomeResponseDTO.builder()
                 .id(income.getId())
                 .userId(income.getUserId())
-                .accountName(income.getAccountName())
+                .accountName(income.getAccount().getName())
                 .type(IncomeTypes.getLabelById(income.getType().getId()))
-                .status(IncomeStatuses.getLabelById(income.getStatus().getId()))
-                .amount(AmountUtil.formatAmount(income.getAmount()))
+                .recurrence(IncomeTypes.getTypeById(income.getType().getId()).getBehavior().getLabel())
+                .status(IncomeStatuses.getStatusById(income.getStatus().getId()).name())
+                .amount(income.getAmount())
                 .date(DateUtil.formatDate(income.getDate()))
+                .receivedAt(Objects.isNull(income.getReceivedAt()) ? null : DateUtil.formatDate(income.getReceivedAt()))
                 .description(income.getDescription())
                 .createdAt(DateUtil.formatDateTime(income.getCreatedAt()))
                 .updatedAt(DateUtil.formatDateTime(income.getUpdatedAt()))

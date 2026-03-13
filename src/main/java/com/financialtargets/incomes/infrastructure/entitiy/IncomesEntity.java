@@ -48,6 +48,10 @@ public class IncomesEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Instant date;
 
+    @Column(name = "received_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Instant receivedAt;
+
     @Column(name = "description")
     private String description;
 
