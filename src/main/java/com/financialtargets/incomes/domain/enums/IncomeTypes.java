@@ -8,18 +8,24 @@ import java.util.Optional;
 
 @Getter
 public enum IncomeTypes {
-    SALARY(1L, "Salário"),
-    FREELANCER(2L, "Freelancer"),
-    THIRTEENTH(3L, "13"),
-    PLR(4L, "PLR"),
-    OTHER_ENTRIES(5L, "Outras Entradas");
+    FIXED_INCOME(1L, IncomeBehavior.RECURRING, "Fixed Income", "Salário"),
+    FREELANCE(2L, IncomeBehavior.VARIABLE, "Freelance", "Variável"),
+    BUSINESS_INCOME(3L, IncomeBehavior.VARIABLE, "Business Income", "Empresarial"),
+    INVESTMENTS(4L, IncomeBehavior.RECURRING, "Investments", "Investimentos"),
+    BONUS(5L, IncomeBehavior.ONE_TIME, "Bonus", "Bônus"),
+    OTHER_INCOMES(6L, IncomeBehavior.VARIABLE, "Other", "Outros");
 
     private final Long id;
-    private final String label;
+    private final IncomeBehavior behavior;
+    private final String EN_LABEL;
+    private final String PT_BR_LABEL;
 
-    IncomeTypes(Long id, String label) {
+    IncomeTypes(Long id, IncomeBehavior behavior, String enLabel, String ptBRLabel) {
         this.id = id;
-        this.label = label;
+        this.behavior = behavior;
+
+        this.EN_LABEL = enLabel;
+        this.PT_BR_LABEL = ptBRLabel;
     }
 
     public static IncomeTypes getTypeById(Long id) {
@@ -31,7 +37,7 @@ public enum IncomeTypes {
     public static String getLabelById(Long id) {
         Optional<IncomeTypes> filtered = Arrays.stream(IncomeTypes.values()).filter(i -> Objects.equals(i.getId(), id)).findFirst();
 
-        return filtered.map(IncomeTypes::getLabel).orElse(null);
+        return filtered.map(IncomeTypes::getPT_BR_LABEL).orElse(null);
 
     }
 }
