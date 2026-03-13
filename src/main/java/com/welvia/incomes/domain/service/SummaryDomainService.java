@@ -1,25 +1,43 @@
 package com.welvia.incomes.domain.service;
 
 import com.welvia.incomes.domain.enums.IncomeStatuses;
+import com.welvia.incomes.domain.enums.IncomeTypes;
 import com.welvia.incomes.domain.model.Income;
-import com.welvia.incomes.domain.model.IncomesSummary;
+import com.welvia.incomes.domain.model.TypeSummary;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 public class SummaryDomainService {
-    public IncomesSummary getSummaryByIncomes(List<Income> incomes) {
-        List<Income> expectedIncomes = incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.EXPECTED).toList();
-        List<Income> receivedIncomes = incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.RECEIVED).toList();
+    public List<Income> getExpectedIncomes(List<Income> incomes) {
+        return incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.EXPECTED).toList();
+    }
 
-        IncomesSummary incomesSummary = new IncomesSummary();
+    public List<Income> getReceivedIncomes(List<Income> incomes) {
+        return incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.RECEIVED).toList();
+    }
 
-        incomesSummary.setCountExpected(expectedIncomes.size());
-        incomesSummary.setTotalExpected(expectedIncomes.stream().reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()), BigDecimal::add));
+    public BigDecimal getTotalExpected(List<Income> incomes) {
+        return incomes.stream().reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()), BigDecimal::add);
+    }
 
-        incomesSummary.setCountReceived(receivedIncomes.size());
-        incomesSummary.setTotalReceived(receivedIncomes.stream().reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()), BigDecimal::add));
+    public BigDecimal getTotalReceived(List<Income> receivedIncomes) {
+        return receivedIncomes.stream().reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()), BigDecimal::add);
+    }
 
-        return incomesSummary;
+    public List<TypeSummary> getSummariesPerType(List<Income> expectedIncomes) {
+        List<IncomeTypes> allTypes = Arrays.stream(IncomeTypes.values()).toList();
+
+        return allTypes.stream().map(type -> {
+            TypeSummary typeSummary = new TypeSummary();
+            List<Income> incomesPerType = expectedIncomes.stream().filter(income -> income.getType().equals(type)).toList();
+
+            typeSummary.setType(type);
+            typeSummary.setAmount(incomesPerType.stream().reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()), BigDecimal::add));
+            typeSummary.setDateOfNextIncome(!incomesPerType.isEmpty() ? incomesPerType.getFirst().getDate(): null);
+
+            return typeSummary;
+        }).toList();
     }
 }

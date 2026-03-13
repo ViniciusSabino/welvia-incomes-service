@@ -8,6 +8,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -19,9 +20,6 @@ public class IncomesSummaryResponseDTO extends RepresentationModel<IncomesSummar
     @JsonProperty("totalReceived")
     BigDecimal totalReceived;
 
-    @JsonProperty("countExpected")
-    Integer countExpected;
-
-    @JsonProperty("countReceived")
-    Integer countReceived;
+    @JsonProperty("summariesPerType")
+    List<IncomeTypeSummaryResponseDTO> summariesPerType;
 }

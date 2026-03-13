@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class GetSummaryUseCase {
     private final IncomesDomainService incomesDomainService;
-    private final SummaryDomainService summaryDomainService;
+    private final SummaryDomainService service;
     private final SummaryMapper mapper;
 
     public IncomesSummaryResponseDTO byPeriod(String month, String year) throws Exception {
@@ -25,7 +26,16 @@ public class GetSummaryUseCase {
 
         List<Income> incomes = incomesDomainService.listByDate(month, year);
 
-        IncomesSummary incomesSummary = summaryDomainService.getSummaryByIncomes(incomes);
+        List<Income> expected = service.getExpectedIncomes(incomes)
+                .stream().sorted(Comparator.comparing(Income::getDate)).toList();
+
+        List<Income> received = service.getReceivedIncomes(incomes);
+
+        IncomesSummary incomesSummary = new IncomesSummary();
+
+        incomesSummary.setTotalExpected(service.getTotalExpected(incomes));
+        incomesSummary.setTotalReceived(service.getTotalReceived(received));
+        incomesSummary.setSummariesByType(service.getSummariesPerType(expected));
 
         return mapper.toResponse(incomesSummary);
     }
