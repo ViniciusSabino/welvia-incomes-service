@@ -3,7 +3,7 @@
  */
 package com;
 
-import com.financialtargets.incomes.Application;
+import com.welvia.incomes.Application;
 import org.junit.jupiter.api.Test;
 
 class ApplicationTest {

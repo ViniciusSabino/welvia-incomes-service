@@ -22,9 +22,9 @@ server:
     contextPath: /api
   info:
     app:
-      name: financial-targets-incomes-service
+      name: welvia-incomes-service
       version: '0.0.1-SNAPSHOT'
 logging:
   level:
     root: INFO
-    com.financialtargets: DEBUG
+    com.welvia: DEBUG

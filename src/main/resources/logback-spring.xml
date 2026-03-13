@@ -46,6 +46,6 @@
     </root>
 
     <!-- Pacote da aplicação em DEBUG -->
-    <logger name="com.financialtargets" level="DEBUG"/>
+    <logger name="com.welvia" level="DEBUG"/>
 
 </configuration>

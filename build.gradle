@@ -5,7 +5,7 @@ plugins {
     id 'jacoco'
 }
 
-group = 'com.financialtargets.incomes'
+group = 'com.welvia.incomes'
 version = '0.0.1-SNAPSHOT'
 
 configurations {
@@ -52,7 +52,7 @@ java {
 }
 
 application {
-    mainClass = 'com.financialtargets.incomes.Application'
+    mainClass = 'com.welvia.incomes.Application'
 }
 
 tasks.named('test') {
