@@ -10,10 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SummaryDomainService {
-    public List<Income> getExpectedIncomes(List<Income> incomes) {
-        return incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.EXPECTED).toList();
-    }
-
     public List<Income> getReceivedIncomes(List<Income> incomes) {
         return incomes.stream().filter(i -> i.getStatus() == IncomeStatuses.RECEIVED).toList();
     }
@@ -26,12 +22,12 @@ public class SummaryDomainService {
         return receivedIncomes.stream().reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()), BigDecimal::add);
     }
 
-    public List<TypeSummary> getSummariesPerType(List<Income> expectedIncomes) {
+    public List<TypeSummary> getSummariesPerType(List<Income> incomes) {
         List<IncomeTypes> allTypes = Arrays.stream(IncomeTypes.values()).toList();
 
         return allTypes.stream().map(type -> {
             TypeSummary typeSummary = new TypeSummary();
-            List<Income> incomesPerType = expectedIncomes.stream().filter(income -> income.getType().equals(type)).toList();
+            List<Income> incomesPerType = incomes.stream().filter(income -> income.getType().equals(type)).toList();
 
             typeSummary.setType(type);
             typeSummary.setAmount(incomesPerType.stream().reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()), BigDecimal::add));

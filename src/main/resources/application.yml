@@ -1,6 +1,8 @@
 spring:
+  application:
+    name: 'welvia_incomes_service'
   profiles:
-    active: dev
+    active: production
   datasource:
     url: "jdbc:postgresql://127.0.0.1:5432/financial-targets-db"
     username: postgres
@@ -20,10 +22,6 @@ server:
   port: 8080
   servlet:
     contextPath: /api
-  info:
-    app:
-      name: welvia-incomes-service
-      version: '0.0.1-SNAPSHOT'
 logging:
   level:
     root: INFO

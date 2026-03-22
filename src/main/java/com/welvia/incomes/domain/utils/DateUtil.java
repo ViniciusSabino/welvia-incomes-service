@@ -21,15 +21,13 @@ public class DateUtil {
     }
 
     public static String formatDate(Instant date) {
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DateConstants.DEFAULT_DATE_FORMAT).withZone(DateConstants.DEFAULT_TIME_ZONE);
-
-        return fmt.format(date);
+        return DateTimeFormatter.ISO_LOCAL_DATE
+                .withZone(DateConstants.DEFAULT_TIME_ZONE)
+                .format(date);
     }
 
     public static String formatDateTime(Instant date) {
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DateConstants.DEFAULT_DATE_TIME_FORMAT).withZone(DateConstants.DEFAULT_TIME_ZONE);
-
-        return fmt.format(date);
+        return DateTimeFormatter.ISO_INSTANT.format(date);
     }
 
     public static Instant getStartDateByFilter(String month, String year) throws Exception {

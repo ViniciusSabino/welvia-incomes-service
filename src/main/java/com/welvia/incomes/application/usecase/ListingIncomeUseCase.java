@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -22,7 +24,7 @@ public class ListingIncomeUseCase {
 
         List<Income> incomes = service.listByDate(month, year);
 
-        log.info("Listed {} incomes successfully", incomes.size());
+        log.info("Listed {} incomes successfully", kv("incomeCount", incomes.size()));
 
         return incomes.stream().map(mapper::toResponse).toList();
     }

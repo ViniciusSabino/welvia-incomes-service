@@ -26,16 +26,13 @@ public class GetSummaryUseCase {
 
         List<Income> incomes = incomesDomainService.listByDate(month, year);
 
-        List<Income> expected = service.getExpectedIncomes(incomes)
-                .stream().sorted(Comparator.comparing(Income::getDate)).toList();
-
         List<Income> received = service.getReceivedIncomes(incomes);
 
         IncomesSummary incomesSummary = new IncomesSummary();
 
         incomesSummary.setTotalExpected(service.getTotalExpected(incomes));
         incomesSummary.setTotalReceived(service.getTotalReceived(received));
-        incomesSummary.setSummariesByType(service.getSummariesPerType(expected));
+        incomesSummary.setSummariesByType(service.getSummariesPerType(incomes));
 
         return mapper.toResponse(incomesSummary);
     }
