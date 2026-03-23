@@ -4,8 +4,8 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: "jdbc:postgresql://127.0.0.1:5432/financial-targets-db"
-#    url: "jdbc:postgresql://host.docker.internal:5432/financial-targets-db"
+#    url: "jdbc:postgresql://127.0.0.1:5432/financial-targets-db"
+    url: "jdbc:postgresql://host.docker.internal:5432/financial-targets-db"
     username: postgres
     password: G~w<Yq=&fU;93kNLZ
   jpa:
@@ -28,7 +28,7 @@ logging:
     com.welvia: DEBUG
 management:
   server:
-    port: 9090
+    port: 7070
   endpoints:
     web:
       exposure:

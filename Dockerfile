@@ -7,6 +7,7 @@ COPY src ./src
 RUN gradle bootJar --no-daemon -x test
 FROM eclipse-temurin:23-jre-alpine
 EXPOSE 8080
+EXPOSE 7070
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=dev
