@@ -11,6 +11,6 @@
         <module name="welvia-incomes-service.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="21" />
+    <bytecodeTargetLevel target="23" />
   </component>
 </project>
