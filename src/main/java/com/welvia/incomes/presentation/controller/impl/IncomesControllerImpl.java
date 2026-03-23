@@ -58,7 +58,7 @@ public class IncomesControllerImpl implements IncomesController {
     @GetMapping
     @Override
     public ResponseEntity<List<IncomeResponseDTO>> listByMonth(@RequestParam @Valid @NonNull String month, @RequestParam @NonNull @Valid String year) throws Exception {
-        log.trace("GET /incomes - List Incomes by month: {} and year: {}", month, year);
+        log.info("GET /incomes - List Incomes by month: {} and year: {}", month, year);
 
         List<IncomeResponseDTO> incomes = listingIncomeUseCase.byPeriod(month, year);
 

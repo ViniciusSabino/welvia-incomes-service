@@ -26,6 +26,10 @@ public class LoggingContextFilter extends OncePerRequestFilter {
             }
 
             MDC.put(REQUEST_ID, requestId);
+            MDC.put("method", request.getMethod());
+            MDC.put("uri", request.getRequestURI());
+
+            response.setHeader(REQUEST_ID, requestId);
 
             filterChain.doFilter(request, response);
 

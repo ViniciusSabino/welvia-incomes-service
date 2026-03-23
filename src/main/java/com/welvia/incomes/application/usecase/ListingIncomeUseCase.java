@@ -20,7 +20,7 @@ public class ListingIncomeUseCase {
     private final IncomesMapper mapper;
 
     public List<IncomeResponseDTO> byPeriod(String month, String year) throws Exception {
-        log.trace("Listing incomes for the period {} to {}", month, year);
+        log.info("Listing incomes for the period {} to {}", month, year);
 
         List<Income> incomes = service.listByDate(month, year);
 
