@@ -4,8 +4,8 @@ spring:
   profiles:
     active: dev
   datasource:
-#    url: "jdbc:postgresql://127.0.0.1:5432/financial-targets-db"
-    url: "jdbc:postgresql://host.docker.internal:5432/financial-targets-db"
+    url: "jdbc:postgresql://127.0.0.1:5432/financial-targets-db"
+#    url: "jdbc:postgresql://host.docker.internal:5432/financial-targets-db"
     username: postgres
     password: G~w<Yq=&fU;93kNLZ
   jpa:
@@ -21,8 +21,22 @@ spring:
 server:
   port: 8080
   servlet:
-    contextPath: /api
+    contextPath: /
 logging:
   level:
     root: WARN
-    com.welvia: DEBUG  
+    com.welvia: DEBUG
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
