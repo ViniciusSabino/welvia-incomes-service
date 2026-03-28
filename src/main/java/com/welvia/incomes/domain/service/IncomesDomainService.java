@@ -3,19 +3,19 @@ package com.welvia.incomes.domain.service;
 import com.welvia.incomes.domain.enums.IncomeStatuses;
 import com.welvia.incomes.domain.model.DateFilter;
 import com.welvia.incomes.domain.model.Income;
-import com.welvia.incomes.domain.repository.IncomeRepository;
+import com.welvia.incomes.domain.repository.IncomeDomainRepository;
 import com.welvia.incomes.domain.utils.DateUtil;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class IncomesDomainService {
-    private final IncomeRepository repository;
+    private final IncomeDomainRepository repository;
 
-    public IncomesDomainService(IncomeRepository repository) {
+    public IncomesDomainService(IncomeDomainRepository repository) {
         this.repository = repository;
     }
 
-    public Income save(Income income) {
+    public Mono<Income> save(Income income) {
         income.setCreatedAt(DateUtil.now());
         income.setUpdatedAt(DateUtil.now());
 
@@ -25,11 +25,11 @@ public class IncomesDomainService {
         return repository.save(income);
     }
 
-    public void delete(Long id) {
-        repository.delete(id);
+    public Mono<Void> delete(Long id) {
+        return repository.delete(id);
     }
 
-    public List<Income> listByDate(String month, String year) throws Exception {
+    public Flux<Income> listByDate(String month, String year) throws Exception {
         DateFilter dateFilter = new DateFilter(month, year);
 
         return repository.findByDate(dateFilter);

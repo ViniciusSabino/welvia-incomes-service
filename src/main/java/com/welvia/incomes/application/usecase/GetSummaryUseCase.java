@@ -9,9 +9,8 @@ import com.welvia.incomes.domain.service.SummaryDomainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Comparator;
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -21,19 +20,24 @@ public class GetSummaryUseCase {
     private final SummaryDomainService service;
     private final SummaryMapper mapper;
 
-    public IncomesSummaryResponseDTO byPeriod(String month, String year) throws Exception {
+    public Mono<IncomesSummaryResponseDTO> byPeriod(String month, String year) throws Exception {
         log.trace("Get summary for the period {}/{}", month, year);
 
-        List<Income> incomes = incomesDomainService.listByDate(month, year);
+        Flux<Income> incomes = incomesDomainService.listByDate(month, year).cache();
+        Flux<Income> received = service.getReceivedIncomes(incomes);
 
-        List<Income> received = service.getReceivedIncomes(incomes);
-
-        IncomesSummary incomesSummary = new IncomesSummary();
-
-        incomesSummary.setTotalExpected(service.getTotalExpected(incomes));
-        incomesSummary.setTotalReceived(service.getTotalReceived(received));
-        incomesSummary.setSummariesByType(service.getSummariesPerType(incomes));
-
-        return mapper.toResponse(incomesSummary);
+        return Mono.zip(
+                        service.getTotalExpected(incomes),
+                        service.getTotalReceived(received),
+                        service.getSummariesPerType(incomes).collectList()
+                )
+                .map(tuple -> {
+                    IncomesSummary summary = new IncomesSummary();
+                    summary.setTotalExpected(tuple.getT1());
+                    summary.setTotalReceived(tuple.getT2());
+                    summary.setSummariesByType(tuple.getT3());
+                    return summary;
+                })
+                .map(mapper::toResponse);
     }
 }

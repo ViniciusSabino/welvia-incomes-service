@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -54,7 +55,7 @@ public interface IncomesController {
                     })
             }
     )
-    ResponseEntity<IncomeResponseDTO> create(IncomeCreateDTO incomeCreateDTO) throws IncomeException;
+    Mono<ResponseEntity<IncomeResponseDTO>> create(IncomeCreateDTO incomeCreateDTO) throws IncomeException;
 
     @Operation(summary = "Delete a Income",
             description = "Delete a Income",
@@ -87,7 +88,7 @@ public interface IncomesController {
                     })
             }
     )
-    ResponseEntity<Void> delete(String id);
+    Mono<ResponseEntity<Void>> delete(String id);
 
     @Operation(summary = "List Incomes by month and year parameter",
             description = "List Incomes by month and year parameter",
@@ -125,5 +126,5 @@ public interface IncomesController {
                     })
             }
     )
-    ResponseEntity<List<IncomeResponseDTO>> listByMonth(String month, String year) throws Exception;
+    Mono<ResponseEntity<List<IncomeResponseDTO>>> listByMonth(String month, String year) throws Exception;
 }

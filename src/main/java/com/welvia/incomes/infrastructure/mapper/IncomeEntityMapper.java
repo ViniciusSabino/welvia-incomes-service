@@ -4,6 +4,7 @@ import com.welvia.incomes.domain.enums.IncomeStatuses;
 import com.welvia.incomes.domain.enums.IncomeTypes;
 import com.welvia.incomes.domain.model.Account;
 import com.welvia.incomes.domain.model.Income;
+import com.welvia.incomes.infrastructure.entitiy.AccountEntity;
 import com.welvia.incomes.infrastructure.entitiy.IncomesEntity;
 import org.springframework.stereotype.Component;
 
@@ -23,13 +24,13 @@ public class IncomeEntityMapper {
         return entity;
     }
 
-    public Income toModel(IncomesEntity entity) {
+    public Income toModel(IncomesEntity entity, AccountEntity accountEntity) {
         return Income.builder()
                 .id(entity.getId())
-                .userId(entity.getUser().getId())
+                .userId(entity.getUserId())
                 .account(Account.builder()
-                        .id(entity.getAccount().getId())
-                        .name(entity.getAccount().getName())
+                        .id(entity.getAccountId())
+                        .name(accountEntity.getName())
                         .build())
                 .amount(entity.getAmount())
                 .date(entity.getDate())
@@ -37,8 +38,8 @@ public class IncomeEntityMapper {
                 .description(entity.getDescription())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
-                .status(IncomeStatuses.getStatusById(entity.getIncomeStatus().getId()))
-                .type(IncomeTypes.getTypeById(entity.getIncomeType().getId()))
+                .status(IncomeStatuses.getStatusById(entity.getIncomeStatusId()))
+                .type(IncomeTypes.getTypeById(entity.getIncomeTypeId()))
                 .build();
     }
 }

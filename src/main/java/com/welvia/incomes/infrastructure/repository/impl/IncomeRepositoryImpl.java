@@ -2,50 +2,74 @@ package com.welvia.incomes.infrastructure.repository.impl;
 
 import com.welvia.incomes.domain.model.DateFilter;
 import com.welvia.incomes.domain.model.Income;
-import com.welvia.incomes.domain.repository.IncomeRepository;
+import com.welvia.incomes.domain.repository.IncomeDomainRepository;
+import com.welvia.incomes.infrastructure.entitiy.AccountEntity;
 import com.welvia.incomes.infrastructure.entitiy.IncomesEntity;
 import com.welvia.incomes.infrastructure.mapper.IncomeEntityMapper;
-import com.welvia.incomes.infrastructure.repository.*;
-import com.welvia.incomes.infrastructure.repository.specification.IncomeSpecification;
+import com.welvia.incomes.infrastructure.repository.AccountR2dbcRepository;
+import com.welvia.incomes.infrastructure.repository.IncomeR2dbcRepository;
+import com.welvia.incomes.infrastructure.repository.IncomeStatusesR2dbcRepository;
+import com.welvia.incomes.infrastructure.repository.IncomeTypesR2dbcRepository;
+import com.welvia.incomes.infrastructure.repository.UserR2dbcRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
 @RequiredArgsConstructor
-public class IncomeRepositoryImpl implements IncomeRepository {
-    private final IncomeJpaRepository repository;
-    private final UserJpaRepository userJpaRepository;
-    private final AccountJpaRepository accountJpaRepository;
-    private final IncomeTypesJpaRepository incomeTypesJpaRepository;
-    private final IncomeStatusesJpaRepository incomeStatusesJpaRepository;
+public class IncomeRepositoryImpl implements IncomeDomainRepository {
+    private final R2dbcEntityTemplate template;
+    private final IncomeR2dbcRepository repository;
+    private final UserR2dbcRepository userR2dbcRepository;
+    private final AccountR2dbcRepository accountRepository;
+    private final IncomeTypesR2dbcRepository incomeTypesR2dbcRepository;
+    private final IncomeStatusesR2dbcRepository incomeStatusesR2dbcRepository;
     private final IncomeEntityMapper mapper;
 
-
     @Override
-    public Income save(Income income) {
+    public Mono<Income> save(Income income) {
         IncomesEntity entity = mapper.toEntity(income);
 
-        entity.setUser(userJpaRepository.getReferenceById(income.getUserId()));
-        entity.setAccount(accountJpaRepository.getReferenceById(income.getAccount().getId()));
-        entity.setIncomeType(incomeTypesJpaRepository.getReferenceById(income.getType().getId()));
-        entity.setIncomeStatus(incomeStatusesJpaRepository.getReferenceById(income.getStatus().getId()));
+        return Mono.zip(
+                        userR2dbcRepository.findById(income.getUserId()),
+                        accountRepository.findById(income.getAccount().getId()),
+                        incomeTypesR2dbcRepository.findById(income.getType().getId()),
+                        incomeStatusesR2dbcRepository.findById(income.getStatus().getId())
+                )
+                .flatMap(tuple -> {
+                    AccountEntity account = tuple.getT2();
 
-        IncomesEntity saved = repository.save(entity);
+                    entity.setUserId(tuple.getT1().getId());
+                    entity.setAccountId(account.getId());
+                    entity.setIncomeTypeId(tuple.getT3().getId());
+                    entity.setIncomeStatusId(tuple.getT4().getId());
 
-        return mapper.toModel(saved);
+                    return repository.save(entity)
+                            .map(saved -> mapper.toModel(saved, account));
+                });
     }
 
     @Override
-    public List<Income> findByDate(DateFilter dateFilter) {
-        List<IncomesEntity> incomes = repository.findAll(IncomeSpecification.byFilter(dateFilter)).stream().toList();
+    public Flux<Income> findByDate(DateFilter dateFilter) {
+        Criteria criteria = Criteria
+                .where("created_at").greaterThanOrEquals(dateFilter.getStartDate())
+                .and("created_at").lessThanOrEquals(dateFilter.getEndDate());
 
-        return incomes.stream().map(mapper::toModel).toList();
+        Query query = Query.query(criteria);
+
+        return template.select(query, IncomesEntity.class).flatMap(income -> {
+            Mono<AccountEntity> accountEntity = accountRepository.findById(income.getAccountId());
+
+            return accountEntity.map(account -> mapper.toModel(income, account));
+        });
     }
 
     @Override
-    public void delete(Long id) {
-        repository.deleteById(id);
+    public Mono<Void> delete(Long id) {
+        return repository.deleteById(id);
     }
 }

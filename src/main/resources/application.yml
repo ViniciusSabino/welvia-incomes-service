@@ -4,4 +4,4 @@ spring:
   profiles:
     active: local
   config:
-    import: "configserver:http://localhost:8888"
+    import: "configserver:${WELVIA_CONFIG_SERVER_URL}"

@@ -3,7 +3,6 @@ package com.welvia.incomes.presentation.exception;
 import com.welvia.incomes.domain.exception.BadRequestException;
 import com.welvia.incomes.domain.exception.IncomeException;
 import com.welvia.incomes.domain.exception.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -64,16 +63,6 @@ public class GlobalExceptionHandler {
         log.warn("Income Exception: {}", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
-
-        ExceptionResponse response = new ExceptionResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString());
-
-        log.warn("Entity Not Found Exception: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(BadRequestException.class)

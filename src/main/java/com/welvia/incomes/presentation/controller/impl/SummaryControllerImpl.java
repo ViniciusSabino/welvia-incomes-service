@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = "/summary", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -24,11 +25,9 @@ public class SummaryControllerImpl implements SummaryController {
 
     @GetMapping("/incomes")
     @Override
-    public ResponseEntity<IncomesSummaryResponseDTO> getSummary(@RequestParam @Valid @NonNull String month, @RequestParam @NonNull @Valid String year) throws Exception {
+    public Mono<ResponseEntity<IncomesSummaryResponseDTO>> getSummary(@RequestParam @Valid @NonNull String month, @RequestParam @NonNull @Valid String year) throws Exception {
         log.trace("GET /summary/incomes - Get Summary incomes by month: {} and year: {}", month, year);
 
-        IncomesSummaryResponseDTO incomesSummary = getSummaryUseCase.byPeriod(month,year);
-
-        return ResponseEntity.status(HttpStatus.OK).body(incomesSummary);
+        return getSummaryUseCase.byPeriod(month,year).map(ResponseEntity.status(HttpStatus.OK)::body);
     }
 }

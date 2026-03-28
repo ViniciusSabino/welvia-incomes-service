@@ -10,6 +10,7 @@ import com.welvia.incomes.domain.validator.IncomeTypeValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -19,15 +20,15 @@ public class CreateIncomeUseCase {
     private final IncomesDomainService service;
     private final IncomesMapper mapper;
 
-    public IncomeResponseDTO create(IncomeCreateDTO incomeCreateDTO) throws IncomeException {
+    public Mono<IncomeResponseDTO> create(IncomeCreateDTO incomeCreateDTO) throws IncomeException {
         incomeTypeValidator.validate(incomeCreateDTO.type());
 
         Income income = mapper.toModel(incomeCreateDTO);
 
-        Income createdIncome = service.save(income);
+        Mono<Income> createdIncome = service.save(income);
 
         log.info("Income saved successfully, incomeId: {}", income.getId());
 
-        return mapper.toResponse(createdIncome);
+        return createdIncome.map(mapper::toResponse);
     }
 }

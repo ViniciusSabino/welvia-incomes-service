@@ -1,49 +1,40 @@
 package com.welvia.incomes.infrastructure.entitiy;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Entity
+@Table("accounts")
 @Data
-@Table(name = "accounts")
 public class AccountEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "account_type_id", nullable = false, unique = true)
-    private AccountTypesEntity accountType;
+    @Column("account_type_id")
+    private Long accountTypeId;
 
-    @Column(name = "name", length = 255, nullable = false, unique = true)
     private String name;
 
-    @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
-    @Column(name = "is_main", nullable = false)
-    private boolean isMain;
+    @Column("is_main")
+    private boolean main;
 
-    @Column(name = "created_at", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    @Column("created_at")
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @LastModifiedDate
+    @Column("updated_at")
     private Instant updatedAt;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    @Column("is_active")
+    private boolean active;
 }

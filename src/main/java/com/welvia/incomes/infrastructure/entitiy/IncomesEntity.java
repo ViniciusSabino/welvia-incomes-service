@@ -1,17 +1,12 @@
 package com.welvia.incomes.infrastructure.entitiy;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -19,47 +14,39 @@ import java.time.Instant;
 @NoArgsConstructor
 @Data
 @Table(name = "incomes")
-@Entity
 public class IncomesEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private UsersEntity user;
+    @Column("user_id")
+    private Long userId;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false, unique = true)
-    private AccountEntity account;
+    @Column("account_id")
+    private Long accountId;
 
-    @ManyToOne
-    @JoinColumn(name = "income_type_id", nullable = false, unique = true)
-    private IncomeTypesEntity incomeType;
+    @Column("income_type_id")
+    private Long incomeTypeId;
 
-    @ManyToOne
-    @JoinColumn(name = "income_status_id", nullable = false, unique = true)
-    private IncomeStatusesEntity incomeStatus;
+    @Column("income_status_id")
+    private Long incomeStatusId;
 
-    @Column(name = "amount", nullable = false)
+    @Column("amount")
     private BigDecimal amount;
 
-    @Column(name = "date", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column("date")
     private Instant date;
 
-    @Column(name = "received_at")
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column("received_at")
     private Instant receivedAt;
 
-    @Column(name = "description")
+    @Column("description")
     private String description;
 
-    @Column(name = "created_at", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    @Column("created_at")
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @LastModifiedDate
+    @Column("updated_at")
     private Instant updatedAt;
 }

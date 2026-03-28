@@ -4,6 +4,7 @@ import com.welvia.incomes.domain.service.IncomesDomainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Service;
 public class DeleteIncomeUseCase {
     private final IncomesDomainService service;
 
-    public void delete(Long id) {
-        service.delete(id);
-
-        log.info("Income delete successfully, incomeId: {}", id);
+    public Mono<Void> delete(Long id) {
+        return service.delete(id).doOnNext(Void -> log.info("Income delete successfully, incomeId: {}", id));
     }
 }
