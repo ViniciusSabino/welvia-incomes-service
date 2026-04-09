@@ -2,7 +2,6 @@ package com.welvia.incomes.presentation.controller;
 
 import com.welvia.incomes.application.dto.IncomeCreateDTO;
 import com.welvia.incomes.application.dto.IncomeResponseDTO;
-import com.welvia.incomes.domain.exception.IncomeException;
 import com.welvia.incomes.presentation.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -12,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -55,7 +53,7 @@ public interface IncomesController {
                     })
             }
     )
-    Mono<ResponseEntity<IncomeResponseDTO>> create(IncomeCreateDTO incomeCreateDTO) throws IncomeException;
+    ResponseEntity<IncomeResponseDTO> create(IncomeCreateDTO incomeCreateDTO);
 
     @Operation(summary = "Delete a Income",
             description = "Delete a Income",
@@ -88,7 +86,7 @@ public interface IncomesController {
                     })
             }
     )
-    Mono<ResponseEntity<Void>> delete(String id);
+    ResponseEntity<Void> delete(String id);
 
     @Operation(summary = "List Incomes by month and year parameter",
             description = "List Incomes by month and year parameter",
@@ -126,5 +124,5 @@ public interface IncomesController {
                     })
             }
     )
-    Mono<ResponseEntity<List<IncomeResponseDTO>>> listByMonth(String month, String year) throws Exception;
+    ResponseEntity<List<IncomeResponseDTO>> listByMonth(String month, String year) throws Exception;
 }

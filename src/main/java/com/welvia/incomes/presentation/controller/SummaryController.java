@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Mono;
 
 @Tag(name = "Summary", description = "Endpoints from Summary Incomes")
 public interface SummaryController {
@@ -50,5 +49,5 @@ public interface SummaryController {
                     })
             }
     )
-    Mono<ResponseEntity<IncomesSummaryResponseDTO>> getSummary(String month, String year) throws Exception;
+    ResponseEntity<IncomesSummaryResponseDTO> getSummary(String month, String year) throws Exception;
 }

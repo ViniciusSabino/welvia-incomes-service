@@ -10,6 +10,5 @@ EXPOSE 8080
 EXPOSE 7070
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
-ENV SPRING_PROFILES_ACTIVE=dev
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

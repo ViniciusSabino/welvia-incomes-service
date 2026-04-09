@@ -1,21 +1,26 @@
 package com.welvia.incomes.domain.service;
 
+import com.welvia.incomes.domain.clients.EventProducerDomainClient;
+import com.welvia.incomes.domain.constants.EventConstants;
 import com.welvia.incomes.domain.enums.IncomeStatuses;
 import com.welvia.incomes.domain.model.DateFilter;
+import com.welvia.incomes.domain.model.EventMessage;
 import com.welvia.incomes.domain.model.Income;
 import com.welvia.incomes.domain.repository.IncomeDomainRepository;
 import com.welvia.incomes.domain.utils.DateUtil;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public class IncomesDomainService {
     private final IncomeDomainRepository repository;
+    private final EventProducerDomainClient eventProducer;
 
-    public IncomesDomainService(IncomeDomainRepository repository) {
+    public IncomesDomainService(IncomeDomainRepository repository, EventProducerDomainClient eventProducer) {
         this.repository = repository;
+        this.eventProducer = eventProducer;
     }
 
-    public Mono<Income> save(Income income) {
+    public Income save(Income income) {
         income.setCreatedAt(DateUtil.now());
         income.setUpdatedAt(DateUtil.now());
 
@@ -25,13 +30,17 @@ public class IncomesDomainService {
         return repository.save(income);
     }
 
-    public Mono<Void> delete(Long id) {
-        return repository.delete(id);
+    public void delete(Long id) {
+        repository.delete(id);
     }
 
-    public Flux<Income> listByDate(String month, String year) throws Exception {
+    public List<Income> listByDate(String month, String year) throws Exception {
         DateFilter dateFilter = new DateFilter(month, year);
 
         return repository.findByDate(dateFilter);
+    }
+
+    public void sendEventNotification(EventMessage eventMessage) {
+        eventProducer.sendEvent(EventConstants.TOPIC_NAME, eventMessage);
     }
 }

@@ -9,8 +9,8 @@ import com.welvia.incomes.domain.service.SummaryDomainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,24 +20,19 @@ public class GetSummaryUseCase {
     private final SummaryDomainService service;
     private final SummaryMapper mapper;
 
-    public Mono<IncomesSummaryResponseDTO> byPeriod(String month, String year) throws Exception {
+    public IncomesSummaryResponseDTO byPeriod(String month, String year) throws Exception {
         log.trace("Get summary for the period {}/{}", month, year);
 
-        Flux<Income> incomes = incomesDomainService.listByDate(month, year).cache();
-        Flux<Income> received = service.getReceivedIncomes(incomes);
+        List<Income> incomes = incomesDomainService.listByDate(month, year);
 
-        return Mono.zip(
-                        service.getTotalExpected(incomes),
-                        service.getTotalReceived(received),
-                        service.getSummariesPerType(incomes).collectList()
-                )
-                .map(tuple -> {
-                    IncomesSummary summary = new IncomesSummary();
-                    summary.setTotalExpected(tuple.getT1());
-                    summary.setTotalReceived(tuple.getT2());
-                    summary.setSummariesByType(tuple.getT3());
-                    return summary;
-                })
-                .map(mapper::toResponse);
+        List<Income> received = service.getReceivedIncomes(incomes);
+
+        IncomesSummary summary = new IncomesSummary();
+
+        summary.setTotalExpected(service.getTotalExpected(incomes));
+        summary.setTotalReceived(service.getTotalReceived(received));
+        summary.setSummariesByType(service.getSummariesPerType(incomes));
+
+        return mapper.toResponse(summary);
     }
 }

@@ -4,45 +4,41 @@ import com.welvia.incomes.domain.enums.IncomeStatuses;
 import com.welvia.incomes.domain.enums.IncomeTypes;
 import com.welvia.incomes.domain.model.Income;
 import com.welvia.incomes.domain.model.TypeSummary;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class SummaryDomainService {
-    public Flux<Income> getReceivedIncomes(Flux<Income> incomes) {
-        return incomes.filter(income -> income.getStatus() == IncomeStatuses.RECEIVED);
+    public List<Income> getReceivedIncomes(List<Income> incomes) {
+        return incomes.stream().filter(income -> income.getStatus() == IncomeStatuses.RECEIVED).toList();
     }
 
-    public Mono<BigDecimal> getTotalExpected(Flux<Income> incomes) {
-        return incomes.reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()));
+    public BigDecimal getTotalExpected(List<Income> incomes) {
+        return incomes.stream().map(Income::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public Mono<BigDecimal> getTotalReceived(Flux<Income> receivedIncomes) {
-        return receivedIncomes.reduce(new BigDecimal(0), (total, income) -> total.add(income.getAmount()));
+    public BigDecimal getTotalReceived(List<Income> receivedIncomes) {
+        return receivedIncomes.stream().map(Income::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public Flux<TypeSummary> getSummariesPerType(Flux<Income> incomes) {
-        Flux<IncomeTypes> allTypes = Flux.just(IncomeTypes.values());
+    public List<TypeSummary> getSummariesPerType(List<Income> incomes) {
+        List<TypeSummary> summaries = new ArrayList<>();
 
-        return allTypes.flatMap(type -> {
-            Flux<Income> incomesPerType = incomes.filter(income -> income.getType().equals(type));
+        for (IncomeTypes type : IncomeTypes.values()) {
+            List<Income> incomesPerType = incomes.stream().filter(income -> income.getType().equals(type)).toList();
+            BigDecimal amount = incomesPerType.stream().map(Income::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            Instant dateOfNextIncome = incomesPerType.stream().map(Income::getDate).filter(java.util.Objects::nonNull).min(Comparator.naturalOrder()).orElse(null);
 
-            Mono<BigDecimal> amount = incomesPerType.reduce(BigDecimal.ZERO, (total, income) -> total.add(income.getAmount()));
+            TypeSummary typeSummary = new TypeSummary();
+            typeSummary.setType(type);
+            typeSummary.setAmount(amount);
+            typeSummary.setDateOfNextIncome(dateOfNextIncome);
+            summaries.add(typeSummary);
+        }
 
-            Mono<Optional<Instant>> dateOfNextIncome = incomesPerType.collectList().map(list -> !list.isEmpty() ? Optional.ofNullable(list.getFirst().getDate()) : Optional.<Instant>empty());
-
-            return Mono.zip(amount, dateOfNextIncome).map(tuple -> {
-                TypeSummary typeSummary = new TypeSummary();
-
-                typeSummary.setType(type);
-                typeSummary.setAmount(tuple.getT1());
-                typeSummary.setDateOfNextIncome(tuple.getT2().orElse(null));
-
-                return typeSummary;
-            });
-        });
+        return summaries;
     }
 }

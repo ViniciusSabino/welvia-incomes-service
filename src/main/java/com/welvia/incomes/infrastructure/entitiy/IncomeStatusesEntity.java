@@ -1,16 +1,18 @@
 package com.welvia.incomes.infrastructure.entitiy;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Data
-@Table("income_statuses")
+@Entity
+@Table(name = "income_statuses")
 public class IncomeStatusesEntity {
     @Id
     private Long id;
 
-    @Column("status")
+    @Column(name = "status")
     private String status;
 }

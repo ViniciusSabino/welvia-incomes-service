@@ -1,97 +1,90 @@
--- Baseline Flyway - V1__baseline.sql
--- Estrutura inicial do banco de dados Financial Targets
+-- =================================================
+-- Welvia Incomes — schema.sql
+-- =================================================
 
--- Função para atualizar coluna updated_at
-CREATE FUNCTION public.update_updated_at_column() RETURNS trigger
-    LANGUAGE plpgsql
-AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$;
-
--- Tabelas
-
-CREATE TABLE public.account_type (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+-- users
+CREATE TABLE IF NOT EXISTS users (
+    id      BIGSERIAL       PRIMARY KEY,
+    name    VARCHAR(255)    NOT NULL,
+    email   VARCHAR(255)    NOT NULL UNIQUE
 );
 
-CREATE TABLE public.users (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE
+-- account_type
+CREATE TABLE IF NOT EXISTS account_type (
+    id      BIGSERIAL       PRIMARY KEY,
+    name    VARCHAR(255)    NOT NULL UNIQUE
 );
 
-CREATE TABLE public.account (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    account_type_id BIGINT NOT NULL REFERENCES public.account_type(id) ON DELETE CASCADE,
-    is_main BOOLEAN DEFAULT false NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-    is_active BOOLEAN DEFAULT true NOT NULL,
-    balance REAL DEFAULT 0.00 NOT NULL,
-    user_id BIGINT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE
+-- accounts
+CREATE TABLE IF NOT EXISTS accounts (
+    id              BIGSERIAL       PRIMARY KEY,
+    account_type_id BIGINT          NOT NULL REFERENCES account_type(id),
+    name            VARCHAR(255)    NOT NULL UNIQUE,
+    balance         NUMERIC(19, 2)  NOT NULL DEFAULT 0.00,
+    is_main         BOOLEAN         NOT NULL DEFAULT FALSE,
+    is_active       BOOLEAN         NOT NULL DEFAULT TRUE,
+    created_at      TIMESTAMPTZ     NOT NULL,
+    updated_at      TIMESTAMPTZ     NOT NULL
 );
 
-CREATE TABLE public.income_statuses (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    status VARCHAR(255) NOT NULL
+-- income_types
+CREATE TABLE IF NOT EXISTS income_types (
+    id      BIGSERIAL       PRIMARY KEY,
+    type    VARCHAR(255)    NOT NULL UNIQUE
 );
 
-CREATE TABLE public.income_types (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    type VARCHAR(255) NOT NULL
+-- income_statuses
+CREATE TABLE IF NOT EXISTS income_statuses (
+    id      BIGSERIAL       PRIMARY KEY,
+    status  VARCHAR(255)    NOT NULL UNIQUE
 );
 
-CREATE TABLE public.incomes (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-    account_id BIGINT NOT NULL REFERENCES public.account(id) ON DELETE CASCADE,
-    income_type_id BIGINT NOT NULL REFERENCES public.income_types(id) ON DELETE SET NULL,
-    income_status_id BIGINT NOT NULL REFERENCES public.income_statuses(id) ON DELETE SET NULL,
-    amount REAL NOT NULL CHECK (amount > 0),
-    date TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    description VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- incomes
+CREATE TABLE IF NOT EXISTS incomes (
+    id                BIGSERIAL       PRIMARY KEY,
+    user_id           BIGINT          NOT NULL REFERENCES users(id),
+    account_id        BIGINT          NOT NULL REFERENCES accounts(id),
+    income_type_id    BIGINT          NOT NULL REFERENCES income_types(id),
+    income_status_id  BIGINT          NOT NULL REFERENCES income_statuses(id),
+    amount            NUMERIC(19, 2)  NOT NULL,
+    date              TIMESTAMPTZ     NOT NULL,
+    received_at       TIMESTAMPTZ,
+    description       VARCHAR(500),
+    created_at        TIMESTAMPTZ     NOT NULL,
+    updated_at        TIMESTAMPTZ     NOT NULL
 );
 
--- Trigger para atualizar updated_at em incomes
-CREATE TRIGGER trigger_update_income_updated_at
-BEFORE UPDATE ON public.incomes
-FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+-- =================================================
+-- Índices
+-- =================================================
+CREATE INDEX IF NOT EXISTS idx_accounts_account_type_id  ON accounts(account_type_id);
+CREATE INDEX IF NOT EXISTS idx_incomes_user_id           ON incomes(user_id);
+CREATE INDEX IF NOT EXISTS idx_incomes_account_id        ON incomes(account_id);
+CREATE INDEX IF NOT EXISTS idx_incomes_income_type_id    ON incomes(income_type_id);
+CREATE INDEX IF NOT EXISTS idx_incomes_income_status_id  ON incomes(income_status_id);
+CREATE INDEX IF NOT EXISTS idx_incomes_date              ON incomes(date);
 
-CREATE TABLE public.essential_outflows (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    value NUMERIC(10,2) NOT NULL,
-    due_date TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    paid_value NUMERIC(10,2) DEFAULT 0,
-    is_fully_paid BOOLEAN GENERATED ALWAYS AS (paid_value >= value) STORED,
-    notes VARCHAR(255),
-    account_id BIGINT NOT NULL REFERENCES public.account(id),
-    user_id BIGINT NOT NULL REFERENCES public.users(id),
-    recurrence TEXT CHECK (recurrence IN ('MONTHLY', 'ANNUAL')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- =================================================
+-- Dados iniciais
+-- =================================================
+INSERT INTO account_type (name) VALUES
+    ('Corrente'),
+    ('Poupança'),
+    ('Investimento'),
+    ('Carteira')
+ON CONFLICT DO NOTHING;
 
-CREATE TABLE public.outflow_allocations (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
-    defined_percentage NUMERIC(5,2) NOT NULL CHECK (defined_percentage >= 0 AND defined_percentage <= 100),
-    total_outflow_value NUMERIC(10,2) NOT NULL CHECK (total_outflow_value >= 0),
-    applied_value NUMERIC(10,2) DEFAULT 0 NOT NULL CHECK (applied_value >= 0),
-    remaining_value NUMERIC(10,2) GENERATED ALWAYS AS (total_outflow_value - applied_value) STORED,
-    account_id BIGINT NOT NULL REFERENCES public.account(id),
-    recurrence_type VARCHAR(20) CHECK (recurrence_type IN ('MONTHLY', 'ANNUAL')),
-    allocation_date DATE DEFAULT CURRENT_DATE NOT NULL,
-    notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    type TEXT DEFAULT 'CUSTOMIZED' NOT NULL CHECK (type IN ('FREE', 'CUSTOMIZED')),
-    user_id BIGINT NOT NULL REFERENCES public.users(id)
-);
+INSERT INTO income_types (type) VALUES
+    ('Salário'),
+    ('Variável'),
+    ('Empresarial'),
+    ('Investimentos'),
+    ('Bônus'),
+	('Outros')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO income_statuses (status) VALUES
+    ('Pendente'),
+    ('Recebido'),
+    ('Cancelado')
+ON CONFLICT DO NOTHING;

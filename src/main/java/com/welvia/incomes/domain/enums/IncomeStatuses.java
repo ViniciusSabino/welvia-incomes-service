@@ -9,7 +9,8 @@ import java.util.Optional;
 @Getter
 public enum IncomeStatuses {
     EXPECTED(1L),
-    RECEIVED(2L);
+    RECEIVED(2L),
+    CANCELED(3L);
 
     private final Long id;
 

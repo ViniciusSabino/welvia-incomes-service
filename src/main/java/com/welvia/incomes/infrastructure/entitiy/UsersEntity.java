@@ -1,19 +1,21 @@
 package com.welvia.incomes.infrastructure.entitiy;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Data
-@Table("users")
+@Entity
+@Table(name = "users")
 public class UsersEntity {
     @Id
     private Long id;
 
-    @Column("name")
+    @Column(name = "name")
     private String name;
 
-    @Column("email")
+    @Column(name = "email")
     private String email;
 }

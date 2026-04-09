@@ -6,70 +6,60 @@ import com.welvia.incomes.domain.repository.IncomeDomainRepository;
 import com.welvia.incomes.infrastructure.entitiy.AccountEntity;
 import com.welvia.incomes.infrastructure.entitiy.IncomesEntity;
 import com.welvia.incomes.infrastructure.mapper.IncomeEntityMapper;
-import com.welvia.incomes.infrastructure.repository.AccountR2dbcRepository;
-import com.welvia.incomes.infrastructure.repository.IncomeR2dbcRepository;
-import com.welvia.incomes.infrastructure.repository.IncomeStatusesR2dbcRepository;
-import com.welvia.incomes.infrastructure.repository.IncomeTypesR2dbcRepository;
-import com.welvia.incomes.infrastructure.repository.UserR2dbcRepository;
+import com.welvia.incomes.infrastructure.repository.AccountJPARepository;
+import com.welvia.incomes.infrastructure.repository.IncomeJPARepository;
+import com.welvia.incomes.infrastructure.repository.IncomeStatusesJPARepository;
+import com.welvia.incomes.infrastructure.repository.IncomeTypesJPARepository;
+import com.welvia.incomes.infrastructure.repository.UserJPARepository;
+import com.welvia.incomes.domain.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.data.relational.core.query.Criteria;
-import org.springframework.data.relational.core.query.Query;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class IncomeRepositoryImpl implements IncomeDomainRepository {
-    private final R2dbcEntityTemplate template;
-    private final IncomeR2dbcRepository repository;
-    private final UserR2dbcRepository userR2dbcRepository;
-    private final AccountR2dbcRepository accountRepository;
-    private final IncomeTypesR2dbcRepository incomeTypesR2dbcRepository;
-    private final IncomeStatusesR2dbcRepository incomeStatusesR2dbcRepository;
+    private final IncomeJPARepository repository;
+    private final UserJPARepository userJPARepository;
+    private final AccountJPARepository accountRepository;
+    private final IncomeTypesJPARepository incomeTypesJPARepository;
+    private final IncomeStatusesJPARepository incomeStatusesJPARepository;
     private final IncomeEntityMapper mapper;
 
     @Override
-    public Mono<Income> save(Income income) {
+    public Income save(Income income) {
         IncomesEntity entity = mapper.toEntity(income);
+        var user = userJPARepository.findById(income.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        AccountEntity account = accountRepository.findById(income.getAccount().getId()).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        var incomeType = incomeTypesJPARepository.findById(income.getType().getId()).orElseThrow(() -> new ResourceNotFoundException("Income type not found"));
+        var incomeStatus = incomeStatusesJPARepository.findById(income.getStatus().getId()).orElseThrow(() -> new ResourceNotFoundException("Income status not found"));
 
-        return Mono.zip(
-                        userR2dbcRepository.findById(income.getUserId()),
-                        accountRepository.findById(income.getAccount().getId()),
-                        incomeTypesR2dbcRepository.findById(income.getType().getId()),
-                        incomeStatusesR2dbcRepository.findById(income.getStatus().getId())
-                )
-                .flatMap(tuple -> {
-                    AccountEntity account = tuple.getT2();
+        entity.setUserId(user.getId());
+        entity.setAccountId(account.getId());
+        entity.setIncomeTypeId(incomeType.getId());
+        entity.setIncomeStatusId(incomeStatus.getId());
 
-                    entity.setUserId(tuple.getT1().getId());
-                    entity.setAccountId(account.getId());
-                    entity.setIncomeTypeId(tuple.getT3().getId());
-                    entity.setIncomeStatusId(tuple.getT4().getId());
-
-                    return repository.save(entity)
-                            .map(saved -> mapper.toModel(saved, account));
-                });
+        IncomesEntity saved = repository.save(entity);
+        return mapper.toModel(saved, account);
     }
 
     @Override
-    public Flux<Income> findByDate(DateFilter dateFilter) {
-        Criteria criteria = Criteria
-                .where("created_at").greaterThanOrEquals(dateFilter.getStartDate())
-                .and("created_at").lessThanOrEquals(dateFilter.getEndDate());
+    public List<Income> findByDate(DateFilter dateFilter) {
+        Specification<IncomesEntity> spec = (root, query, cb) -> cb.and(
+                cb.greaterThanOrEqualTo(root.get("createdAt"), dateFilter.getStartDate()),
+                cb.lessThanOrEqualTo(root.get("createdAt"), dateFilter.getEndDate())
+        );
 
-        Query query = Query.query(criteria);
-
-        return template.select(query, IncomesEntity.class).flatMap(income -> {
-            Mono<AccountEntity> accountEntity = accountRepository.findById(income.getAccountId());
-
-            return accountEntity.map(account -> mapper.toModel(income, account));
-        });
+        return repository.findAll(spec).stream().map(income -> {
+            AccountEntity accountEntity = accountRepository.findById(income.getAccountId()).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+            return mapper.toModel(income, accountEntity);
+        }).toList();
     }
 
     @Override
-    public Mono<Void> delete(Long id) {
-        return repository.deleteById(id);
+    public void delete(Long id) {
+        repository.deleteById(id);
     }
 }

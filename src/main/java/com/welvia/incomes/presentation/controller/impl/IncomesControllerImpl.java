@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -38,28 +36,32 @@ public class IncomesControllerImpl implements IncomesController {
 
     @PostMapping
     @Override
-    public Mono<ResponseEntity<IncomeResponseDTO>> create(@RequestBody @Valid IncomeCreateDTO incomeCreateDTO) throws IncomeException {
+    public ResponseEntity<IncomeResponseDTO> create(@RequestBody @Valid IncomeCreateDTO incomeCreateDTO) {
         log.trace("POST /incomes - Creating new income for user {}", incomeCreateDTO.userId());
         log.debug("Request body: {}", incomeCreateDTO);
 
-        return createIncomeUseCase.create(incomeCreateDTO).map(ResponseEntity.status(HttpStatus.CREATED)::body);
+        IncomeResponseDTO response = createIncomeUseCase.create(incomeCreateDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}")
     @Override
-    public Mono<ResponseEntity<Void>> delete(@PathVariable("id") String id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") String id) {
         log.trace("DELETE /incomes - Deleting a income for id {}", id);
 
-        return deleteIncomeUseCase.delete(Long.valueOf(id)).map(Void -> ResponseEntity.status(HttpStatus.OK).build());
+        deleteIncomeUseCase.delete(Long.valueOf(id));
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping
     @Override
-    public Mono<ResponseEntity<List<IncomeResponseDTO>>> listByMonth(@RequestParam @Valid @NonNull String month, @RequestParam @NonNull @Valid String year) throws Exception {
+    public ResponseEntity<List<IncomeResponseDTO>> listByMonth(@RequestParam @Valid @NonNull String month, @RequestParam @NonNull @Valid String year) throws Exception {
         log.info("GET /incomes - List Incomes by month: {} and year: {}", month, year);
 
-        Flux<IncomeResponseDTO> incomes = listingIncomeUseCase.byPeriod(month, year);
+        List<IncomeResponseDTO> incomes = listingIncomeUseCase.byPeriod(month, year);
 
-        return incomes.collectList().map(ResponseEntity::ok);
+        return ResponseEntity.ok(incomes);
     }
 }
